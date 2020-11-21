@@ -27,12 +27,12 @@ def extract_EOD(libName,folder):
         df.to_csv("{}/{}.csv".format(folder,dataname))
 
 
-
+def rename(name):
+        return name.split(" ")[0]
 
 def extract_composition(libName):
 
-    def rename(name):
-        return name.split(" ")[0]
+    
     
     lib = db[libName]
     # print (lib.list_symbols())
@@ -42,8 +42,21 @@ def extract_composition(libName):
     df.drop(columns = ["symbol"], inplace = True)
     df.to_csv("composition.csv")
 
-def extract_corporate_Actions():
-    pass
+def extract_corporate_Actions(libName):
+    lib = db[libName]
+    tickers = lib.list_symbols()
+    ldf = []
+
+    for ticker in tickers:
+        df = lib.read(symbol = ticker).data
+        
+        df["symbol"] = rename(ticker)
+        df.reset_index(inplace=True)
+        df.drop(inplace=True,columns=['index'])
+        # print (df.tail())
+        ldf.append(df)
+    data = pd.concat(ldf)
+    data.to_csv("corporate_actions.csv")
 
 if __name__ == "__main__":
 
@@ -57,7 +70,16 @@ if __name__ == "__main__":
 
     Benchmark_Composition_library = libs_to_use[-2]
 
-    extract_composition(libName=Benchmark_Composition_library)
+    # extract_composition(libName=Benchmark_Composition_library)
+
+    Corporate_Actions_library = libs_to_use[3]
+    # print (Corporate_Actions_library)
+
+    extract_corporate_Actions(libName=Corporate_Actions_library)
+
+
+
+
 
 
 
